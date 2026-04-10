@@ -24,6 +24,7 @@ export const errorMiddleware = (error: unknown, context: Context) => {
   const appError = AppError.fromUnknown(error);
   const requestId = getRequestId(context);
   const isServerError = appError.statusCode >= 500;
+  const shouldMaskError = appError.statusCode === 500;
 
   const logContext = {
     cause: appError.cause,
@@ -45,8 +46,8 @@ export const errorMiddleware = (error: unknown, context: Context) => {
   return context.json(
     {
       code: appError.code,
-      details: isServerError ? null : (appError.details ?? null),
-      message: isServerError ? "Internal Server Error" : appError.message,
+      details: shouldMaskError ? null : (appError.details ?? null),
+      message: shouldMaskError ? "Internal Server Error" : appError.message,
       ...(requestId ? { requestId } : {}),
     },
     appError.statusCode

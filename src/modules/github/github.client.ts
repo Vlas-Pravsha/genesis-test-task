@@ -13,6 +13,11 @@ const releaseSchema = z.object({
 
 type Release = z.infer<typeof releaseSchema>;
 
+interface RequestOptions {
+  notFoundBehavior?: "return-null" | "throw";
+  resource?: "release" | "repository";
+}
+
 export class GithubClient {
   private readonly token?: string;
 
@@ -37,10 +42,30 @@ export class GithubClient {
     );
   }
 
-  private async fetch(path: string) {
-    const res = await fetch(`https://api.github.com${path}`, {
-      headers: this.headers(),
-    });
+  private static getRateLimitDetails(response: Response, path: string) {
+    const retryAfter = response.headers.get("retry-after");
+    const resetAt = response.headers.get("x-ratelimit-reset");
+
+    return {
+      path,
+      ...(retryAfter ? { retryAfter } : {}),
+      ...(resetAt ? { resetAt } : {}),
+    };
+  }
+
+  private async request(path: string, options: RequestOptions = {}) {
+    let res: Response;
+
+    try {
+      res = await fetch(`https://api.github.com${path}`, {
+        headers: this.headers(),
+      });
+    } catch (error) {
+      throw AppError.serviceUnavailable("GitHub API is unavailable", {
+        cause: error,
+        details: { path },
+      });
+    }
 
     if (res.status === STATUS_CODE.NOT_FOUND) {
       console.log("[github.client] GitHub response", {
@@ -48,11 +73,21 @@ export class GithubClient {
         payload: null,
         status: res.status,
       });
-      return null;
+
+      if (options.notFoundBehavior === "return-null") {
+        return null;
+      }
+
+      throw AppError.notFound("GitHub repository not found", {
+        details: {
+          path,
+          resource: options.resource ?? "repository",
+        },
+      });
     }
     if (GithubClient.isRateLimitedResponse(res)) {
       throw AppError.rateLimited("GitHub API rate limit exceeded", {
-        details: { path },
+        details: GithubClient.getRateLimitDetails(res, path),
         cause: { providerStatusCode: res.status },
       });
     }
@@ -77,12 +112,27 @@ export class GithubClient {
   }
 
   getRepo(fullName: string) {
-    return this.fetch(`/repos/${fullName}`);
+    return this.request(`/repos/${fullName}`, {
+      notFoundBehavior: "return-null",
+      resource: "repository",
+    });
   }
 
   async getLatestRelease(fullName: string): Promise<Release | null> {
-    const data = await this.fetch(`/repos/${fullName}/releases/latest`);
+    const data = await this.request(`/repos/${fullName}/releases/latest`, {
+      notFoundBehavior: "return-null",
+      resource: "release",
+    });
+
     if (!data) {
+      const repository = await this.getRepo(fullName);
+
+      if (!repository) {
+        throw AppError.notFound("GitHub repository not found", {
+          details: { fullName },
+        });
+      }
+
       return null;
     }
 

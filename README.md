@@ -32,22 +32,28 @@ Minimal starter on:
 docker compose up -d db
 ```
 
-3. Apply the existing migrations:
+The local Docker database uses the credentials from `.env.example`:
+`vlas / genesis-secret-password55`.
+
+3. Apply the existing migrations for local development:
 
 ```bash
 npm run prisma:migrate:deploy
 ```
 
-4. Start the app:
+4. Start the app in watch mode:
 
 ```bash
 npm run dev
 ```
 
+`npm run start` automatically generates the Prisma client and applies committed migrations before the server starts. This is the path used when the service is started normally, including Docker.
+
 ## Scripts
 
 - `npm run dev` - run the Hono server in watch mode
-- `npm run start` - run the server once
+- `npm run start` - generate Prisma client, apply migrations, and run the server once
+- `npm run build` - compile the application into `dist`
 - `npm run lint` - run Oxlint
 - `npm run lint:fix` - run Oxlint with safe autofixes
 - `npm run fmt` - format files with Oxfmt
@@ -60,6 +66,18 @@ npm run dev
 - `npm run prisma:studio` - open Prisma Studio
 - `npm run db:up` - start only PostgreSQL
 - `npm run docker:up` - start app + PostgreSQL via Docker
+
+## CI
+
+GitHub Actions uses separate workflows for each check:
+
+- `.github/workflows/lint.yml` - runs `pnpm lint`
+- `.github/workflows/typecheck.yml` - runs `pnpm typecheck`
+- `.github/workflows/build.yml` - runs `pnpm build`
+- `.github/workflows/test.yml` - runs `pnpm test` against a fresh PostgreSQL service
+
+Each workflow reads `DATABASE_URL` from the GitHub Actions secret `DATABASE_URL`.
+The test workflow also reads `POSTGRES_USER` and `POSTGRES_PASSWORD` from GitHub Actions secrets.
 
 ## HTTP Endpoints
 

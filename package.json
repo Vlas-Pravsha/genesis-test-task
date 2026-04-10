@@ -24,7 +24,7 @@
     "docker:down": "docker compose down",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
-    "swagger": "npx swagger-ui-watcher swagger/swagger.yml"
+    "swagger": "swagger-ui-watcher swagger/swagger.yml"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.13",
@@ -53,6 +53,7 @@
     "oxfmt": "^0.44.0",
     "oxlint": "^1.59.0",
     "prisma": "^7.6.0",
+    "swagger-ui-watcher": "^2.1.14",
     "ts-jest": "^29.4.9",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",

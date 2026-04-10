@@ -8,7 +8,6 @@ Minimal starter on:
 - PostgreSQL
 - Upstash Redis
 - Resend
-- node-cron
 - Jest
 - zod
 - Docker / docker-compose
@@ -21,7 +20,6 @@ Minimal starter on:
 - Prisma / @prisma/client 7.6.0
 - @upstash/redis 1.37.0
 - Resend 6.10.0
-- node-cron 4.2.1
 - Jest 30.3.0
 - zod 4.3.6
 

@@ -1,4 +1,5 @@
 import { logger } from "../../core/logger/logger.ts";
+import { githubCache } from "../github/github.cache.ts";
 import { GithubClient } from "../github/github.client.ts";
 import { GithubService } from "../github/github.service.ts";
 import { notifierService } from "../notifier/notifier.service.ts";
@@ -138,7 +139,9 @@ export class ScannerService {
 }
 
 const scannerRepository = new ScannerRepository();
-const githubService = new GithubService(new GithubClient());
+const githubService = new GithubService(
+  new GithubClient(undefined, githubCache)
+);
 
 export const scannerService = new ScannerService(
   scannerRepository,

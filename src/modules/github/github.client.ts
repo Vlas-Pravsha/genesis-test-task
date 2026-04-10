@@ -2,6 +2,12 @@ import { z } from "zod";
 
 import { AppError } from "../../core/errors/app-error.ts";
 import { STATUS_CODE } from "../../shared/utils/status-code.ts";
+import {
+  buildGithubCacheKey,
+  githubCache,
+  GITHUB_CACHE_TTL_SECONDS,
+} from "./github.cache.ts";
+import type { GithubCache } from "./github.cache.ts";
 
 const releaseSchema = z.object({
   id: z.number(),
@@ -19,9 +25,11 @@ interface RequestOptions {
 }
 
 export class GithubClient {
+  private readonly cache: GithubCache;
   private readonly token?: string;
 
-  constructor(token?: string) {
+  constructor(token?: string, cache: GithubCache = githubCache) {
+    this.cache = cache;
     this.token = token;
   }
 
@@ -54,6 +62,18 @@ export class GithubClient {
   }
 
   private async request(path: string, options: RequestOptions = {}) {
+    const cacheKey = buildGithubCacheKey(path, this.token);
+    const cachedData = await this.cache.get(cacheKey);
+
+    if (cachedData !== undefined) {
+      console.log("[github.client] GitHub cache hit", {
+        cacheKey,
+        path,
+      });
+
+      return cachedData;
+    }
+
     let res: Response;
 
     try {
@@ -75,6 +95,8 @@ export class GithubClient {
       });
 
       if (options.notFoundBehavior === "return-null") {
+        await this.cache.set(cacheKey, null, GITHUB_CACHE_TTL_SECONDS);
+
         return null;
       }
 
@@ -101,6 +123,8 @@ export class GithubClient {
     }
 
     const data = await res.json();
+
+    await this.cache.set(cacheKey, data, GITHUB_CACHE_TTL_SECONDS);
 
     console.log("[github.client] GitHub response", {
       path,

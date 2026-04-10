@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 
 import { AppError } from "../../core/errors/app-error.ts";
+import { githubCache } from "../github/github.cache.ts";
 import { GithubClient } from "../github/github.client.ts";
 import { GithubService } from "../github/github.service.ts";
 import { notifierService } from "../notifier/notifier.service.ts";
@@ -29,7 +30,8 @@ export class SubscriptionsService {
   }
 
   async subscribe({ email, repo }: SubscribeInput) {
-    const repositoryExists = await this.githubService.checkRepositoryExists(repo);
+    const repositoryExists =
+      await this.githubService.checkRepositoryExists(repo);
 
     console.log("[subscriptions.service] subscribe GitHub repository check", {
       email,
@@ -54,9 +56,12 @@ export class SubscriptionsService {
       existingSubscription &&
       existingSubscription.status !== SubscriptionStatus.UNSUBSCRIBED
     ) {
-      throw AppError.conflict("Email is already subscribed to this repository", {
-        details: { email, repo },
-      });
+      throw AppError.conflict(
+        "Email is already subscribed to this repository",
+        {
+          details: { email, repo },
+        }
+      );
     }
 
     const confirmToken = SubscriptionsService.generateToken();
@@ -121,9 +126,12 @@ export class SubscriptionsService {
     }
 
     if (subscription.status === SubscriptionStatus.UNSUBSCRIBED) {
-      throw AppError.badRequest("Unsubscribed subscriptions must be created again", {
-        details: { token },
-      });
+      throw AppError.badRequest(
+        "Unsubscribed subscriptions must be created again",
+        {
+          details: { token },
+        }
+      );
     }
 
     await this.subscriptionsRepository.confirm(
@@ -224,7 +232,9 @@ export class SubscriptionsService {
 }
 
 const subscriptionsRepository = new SubscriptionsRepository();
-const githubService = new GithubService(new GithubClient());
+const githubService = new GithubService(
+  new GithubClient(undefined, githubCache)
+);
 
 export const subscriptionsService = new SubscriptionsService(
   subscriptionsRepository,

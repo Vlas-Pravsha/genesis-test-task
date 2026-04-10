@@ -6,6 +6,7 @@ Minimal starter on:
 - TypeScript
 - Prisma
 - PostgreSQL
+- Upstash Redis
 - Resend
 - node-cron
 - Jest
@@ -18,6 +19,7 @@ Minimal starter on:
 - Hono 4.12.12
 - TypeScript 6.0.2
 - Prisma / @prisma/client 7.6.0
+- @upstash/redis 1.37.0
 - Resend 6.10.0
 - node-cron 4.2.1
 - Jest 30.3.0
@@ -34,6 +36,10 @@ docker compose up -d db
 
 The local Docker database uses the credentials from `.env.example`:
 `vlas / genesis-secret-password55`.
+
+If you want GitHub API responses to be cached, set `UPSTASH_REDIS_REST_URL`
+and `UPSTASH_REDIS_REST_TOKEN` in `.env`. Repository and latest-release
+responses are cached for 10 minutes.
 
 3. Apply the existing migrations for local development:
 

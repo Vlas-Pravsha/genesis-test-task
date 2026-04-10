@@ -30,6 +30,7 @@
     "@hono/node-server": "^1.19.13",
     "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",
+    "@upstash/redis": "^1.37.0",
     "better-result": "^2.8.1",
     "dotenv": "^17.4.1",
     "hono": "^4.12.12",

@@ -1,11 +1,11 @@
-import { jest } from "@jest/globals";
 import { faker } from "@faker-js/faker";
+import { jest } from "@jest/globals";
 import { mock, mockReset } from "jest-mock-extended";
 
 import type { GithubService } from "../../src/modules/github/github.service.ts";
-import { ScannerService } from "../../src/modules/scanner/scanner.service.ts";
-import type { ScannerRepository } from "../../src/modules/scanner/scanner.repository.ts";
 import type { notifierService } from "../../src/modules/notifier/notifier.service.ts";
+import type { ScannerRepository } from "../../src/modules/scanner/scanner.repository.ts";
+import { ScannerService } from "../../src/modules/scanner/scanner.service.ts";
 
 const EMAIL = faker.internet.email().toLowerCase();
 const SECONDARY_EMAIL = faker.internet.email().toLowerCase();
@@ -79,9 +79,15 @@ describe("ScannerService", () => {
     });
 
     expect(notifier.sendReleaseNotification).toHaveBeenCalledWith(
-      EMAIL, REPO, NEW_TAG, "token-1"
+      EMAIL,
+      REPO,
+      NEW_TAG,
+      "token-1"
     );
-    expect(repository.updateRepositoryState).toHaveBeenCalledWith("repo-1", NEW_TAG);
+    expect(repository.updateRepositoryState).toHaveBeenCalledWith(
+      "repo-1",
+      NEW_TAG
+    );
   });
 
   it("only updates check state when there is no new release", async () => {
@@ -96,7 +102,10 @@ describe("ScannerService", () => {
     });
 
     expect(notifier.sendReleaseNotification).not.toHaveBeenCalled();
-    expect(repository.updateRepositoryState).toHaveBeenCalledWith("repo-1", CURRENT_TAG);
+    expect(repository.updateRepositoryState).toHaveBeenCalledWith(
+      "repo-1",
+      CURRENT_TAG
+    );
   });
 
   it("continues scanning when GitHub fails for one repository", async () => {
@@ -121,6 +130,9 @@ describe("ScannerService", () => {
 
     expect(notifier.sendReleaseNotification).toHaveBeenCalledTimes(1);
     expect(repository.updateRepositoryState).toHaveBeenCalledTimes(1);
-    expect(repository.updateRepositoryState).toHaveBeenCalledWith("repo-2", HEALTHY_TAG);
+    expect(repository.updateRepositoryState).toHaveBeenCalledWith(
+      "repo-2",
+      HEALTHY_TAG
+    );
   });
 });

@@ -1,14 +1,14 @@
-import { jest } from "@jest/globals";
 import { faker } from "@faker-js/faker";
+import { jest } from "@jest/globals";
 import { mock, mockReset } from "jest-mock-extended";
 
 import { ERROR_CODES } from "../../src/core/errors/error-codes.ts";
-import { SubscriptionsService } from "../../src/modules/subscriptions/subscriptions.service.ts";
-import type { SubscriptionsRepository } from "../../src/modules/subscriptions/subscriptions.repository.ts";
 import type { GithubService } from "../../src/modules/github/github.service.ts";
+import type { notifierService } from "../../src/modules/notifier/notifier.service.ts";
+import type { SubscriptionsRepository } from "../../src/modules/subscriptions/subscriptions.repository.ts";
+import { SubscriptionsService } from "../../src/modules/subscriptions/subscriptions.service.ts";
 import { SubscriptionStatus } from "../../src/modules/subscriptions/subscriptions.types.ts";
 import { STATUS_CODE } from "../../src/shared/utils/status-code.ts";
-import type { notifierService } from "../../src/modules/notifier/notifier.service.ts";
 
 const EMAIL = faker.internet.email().toLowerCase();
 const REPO = "octocat/hello-world";
@@ -74,12 +74,16 @@ describe("SubscriptionsService", () => {
     github.checkRepositoryExists.mockResolvedValue(true);
     repository.findRepositoryByFullName.mockResolvedValue(null);
     github.getLatestRelease.mockResolvedValue(release(NEW_TAG));
-    repository.createRepository.mockResolvedValue(repoRecord({ lastSeenTag: NEW_TAG }));
+    repository.createRepository.mockResolvedValue(
+      repoRecord({ lastSeenTag: NEW_TAG })
+    );
     repository.findByEmailAndRepo.mockResolvedValue(null);
     repository.create.mockResolvedValue(subscriptionRecord());
     notifier.sendConfirmation.mockResolvedValue();
 
-    await expect(service.subscribe({ email: EMAIL, repo: REPO })).resolves.toEqual({
+    await expect(
+      service.subscribe({ email: EMAIL, repo: REPO })
+    ).resolves.toEqual({
       message: "Subscription created successfully.",
     });
 
@@ -94,7 +98,10 @@ describe("SubscriptionsService", () => {
       email: EMAIL,
       repositoryId: "repo-1",
     });
-    expect(notifier.sendConfirmation).toHaveBeenCalledWith(EMAIL, expect.any(String));
+    expect(notifier.sendConfirmation).toHaveBeenCalledWith(
+      EMAIL,
+      expect.any(String)
+    );
   });
 
   it("rejects duplicate active subscription", async () => {
@@ -104,7 +111,9 @@ describe("SubscriptionsService", () => {
       subscriptionRecord({ status: SubscriptionStatus.ACTIVE })
     );
 
-    await expect(service.subscribe({ email: EMAIL, repo: REPO })).rejects.toMatchObject({
+    await expect(
+      service.subscribe({ email: EMAIL, repo: REPO })
+    ).rejects.toMatchObject({
       code: ERROR_CODES.CONFLICT,
       message: "Email is already subscribed to this repository",
       statusCode: STATUS_CODE.CONFLICT,
@@ -121,7 +130,10 @@ describe("SubscriptionsService", () => {
       message: "Subscription confirmed successfully",
     });
 
-    expect(repository.confirm).toHaveBeenCalledWith("sub-1", expect.any(String));
+    expect(repository.confirm).toHaveBeenCalledWith(
+      "sub-1",
+      expect.any(String)
+    );
   });
 
   it("unsubscribes an active subscription", async () => {

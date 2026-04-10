@@ -25,6 +25,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(DEFAULT_PORT),
   RESEND_API_KEY: z.string().min(1).optional(),
   RESEND_FROM_EMAIL: z.email().trim().default(DEFAULT_RESEND_FROM_EMAIL),
+  UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+  UPSTASH_REDIS_REST_URL: z.string().min(1).optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

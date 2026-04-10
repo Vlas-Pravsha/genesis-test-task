@@ -1,5 +1,5 @@
-import { jest } from "@jest/globals";
 import { faker } from "@faker-js/faker";
+import { jest } from "@jest/globals";
 import { mock, mockReset } from "jest-mock-extended";
 
 import { AppError } from "../../src/core/errors/app-error.ts";
@@ -165,7 +165,9 @@ describe("Subscriptions HTTP integration", () => {
     await expect(response.json()).resolves.toEqual({
       message: RESPONSES.CONFIRM_SUCCESS,
     });
-    expect(subscriptionsServiceMock.confirm).toHaveBeenCalledWith(FIXTURES.TOKEN);
+    expect(subscriptionsServiceMock.confirm).toHaveBeenCalledWith(
+      FIXTURES.TOKEN
+    );
   });
 
   it("propagates service errors from unsubscribe endpoint", async () => {
@@ -177,7 +179,9 @@ describe("Subscriptions HTTP integration", () => {
       })
     );
 
-    const response = await app.request(`${ROUTES.UNSUBSCRIBE}/${FIXTURES.TOKEN}`);
+    const response = await app.request(
+      `${ROUTES.UNSUBSCRIBE}/${FIXTURES.TOKEN}`
+    );
 
     expect(response.status).toBe(STATUS_CODE.NOT_FOUND);
     await expect(response.json()).resolves.toEqual({
@@ -211,8 +215,8 @@ describe("Subscriptions HTTP integration", () => {
 
     expect(response.status).toBe(STATUS_CODE.OK);
     await expect(response.json()).resolves.toEqual(subscriptions);
-    expect(subscriptionsServiceMock.getSubscriptionsByEmail).toHaveBeenCalledWith(
-      FIXTURES.EMAIL
-    );
+    expect(
+      subscriptionsServiceMock.getSubscriptionsByEmail
+    ).toHaveBeenCalledWith(FIXTURES.EMAIL);
   });
 });

@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Subscription {
+  id           String             @id @default(cuid())
+  email        String
+  status       SubscriptionStatus
+  repositoryId String
+  repository   Repository         @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  confirmToken     String?   @unique
+  unsubscribeToken String?   @unique
+  confirmedAt      DateTime?
+  unsubscribedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, repositoryId])
+}
+
+model Repository {
+  id            String    @id @default(cuid())
+  fullName      String    @unique
+  lastSeenTag   String?
+  lastCheckedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  subscriptions Subscription[]
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  UNSUBSCRIBED
+}

@@ -1,0 +1,12 @@
+{
+  "extends": ["./node_modules/ultracite/config/oxlint/core/.oxlintrc.json"],
+  "env": {
+    "browser": false,
+    "node": true
+  },
+  "ignorePatterns": ["src/generated/**"],
+  "rules": {
+    "promise/prefer-await-to-callbacks": "off",
+    "sort-keys": "off"
+  }
+}

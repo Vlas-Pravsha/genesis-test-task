@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { AppError } from "../../core/errors/app-error.ts";
-import { STATUS_CODE } from "../../shared/utils/status-code.ts";
+import { STATUS_CODE } from "../../shared/constants/status-code.ts";
 import {
   buildGithubCacheKey,
   githubCache,

@@ -2,13 +2,13 @@ import { faker } from "@faker-js/faker";
 import { jest } from "@jest/globals";
 import { mock, mockReset } from "jest-mock-extended";
 
-import { ERROR_CODES } from "../../src/core/errors/error-codes.ts";
 import type { GithubService } from "../../src/modules/github/github.service.ts";
 import type { notifierService } from "../../src/modules/notifier/notifier.service.ts";
 import type { SubscriptionsRepository } from "../../src/modules/subscriptions/subscriptions.repository.ts";
 import { SubscriptionsService } from "../../src/modules/subscriptions/subscriptions.service.ts";
 import { SubscriptionStatus } from "../../src/modules/subscriptions/subscriptions.types.ts";
-import { STATUS_CODE } from "../../src/shared/utils/status-code.ts";
+import { ERROR_CODES } from "../../src/shared/constants/error-code.ts";
+import { STATUS_CODE } from "../../src/shared/constants/status-code.ts";
 
 const EMAIL = faker.internet.email().toLowerCase();
 const REPO = "octocat/hello-world";

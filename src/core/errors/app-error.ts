@@ -1,8 +1,8 @@
-import { STATUS_CODE } from "../../shared/utils/status-code.ts";
-import type { AppContentfulStatusCode } from "../../shared/utils/status-code.ts";
-import type { JsonValue } from "../types/common.ts";
-import { ERROR_CODES } from "./error-codes.ts";
-import type { ErrorCode } from "./error-codes.ts";
+import { ERROR_CODES } from "../../shared/constants/error-code.ts";
+import type { ErrorCode } from "../../shared/constants/error-code.ts";
+import { STATUS_CODE } from "../../shared/constants/status-code.ts";
+import type { AppContentfulStatusCode } from "../../shared/constants/status-code.ts";
+import type { JsonValue } from "../../shared/types/common.ts";
 
 interface AppErrorOptions {
   cause?: unknown;

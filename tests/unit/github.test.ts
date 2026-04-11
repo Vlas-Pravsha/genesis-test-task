@@ -1,11 +1,11 @@
 import { mock, mockReset } from "jest-mock-extended";
 
 import type { AppError } from "../../src/core/errors/app-error.ts";
-import { ERROR_CODES } from "../../src/core/errors/error-codes.ts";
 import type { GithubCache } from "../../src/modules/github/github.cache.ts";
 import { GithubClient } from "../../src/modules/github/github.client.ts";
 import { GithubService } from "../../src/modules/github/github.service.ts";
-import { STATUS_CODE } from "../../src/shared/utils/status-code.ts";
+import { ERROR_CODES } from "../../src/shared/constants/error-code.ts";
+import { STATUS_CODE } from "../../src/shared/constants/status-code.ts";
 
 const TOKEN = "secret-token";
 const REPO = "octocat/hello-world";
@@ -72,7 +72,8 @@ const enqueue = (...responses: (Response | Error)[]) => {
   fetchQueue.push(...responses);
 };
 
-const createGithubClient = (token?: string) => new GithubClient(token, githubCache);
+const createGithubClient = (token?: string) =>
+  new GithubClient(token, githubCache);
 
 describe("GithubClient", () => {
   describe("getRepo", () => {
@@ -96,7 +97,9 @@ describe("GithubClient", () => {
     it("returns null when repository is not found", async () => {
       enqueue(makeResponse(STATUS_CODE.NOT_FOUND));
 
-      await expect(createGithubClient().getRepo(MISSING_REPO)).resolves.toBeNull();
+      await expect(
+        createGithubClient().getRepo(MISSING_REPO)
+      ).resolves.toBeNull();
     });
 
     it("throws RATE_LIMITED on 429", async () => {
@@ -166,9 +169,9 @@ describe("GithubClient", () => {
     it("returns parsed release payload", async () => {
       enqueue(makeResponse(STATUS_CODE.OK, releasePayload()));
 
-      await expect(createGithubClient().getLatestRelease(REPO)).resolves.toEqual(
-        releasePayload()
-      );
+      await expect(
+        createGithubClient().getLatestRelease(REPO)
+      ).resolves.toEqual(releasePayload());
     });
 
     it("returns null when repository has no release yet", async () => {
@@ -177,7 +180,9 @@ describe("GithubClient", () => {
         makeResponse(STATUS_CODE.OK, repoPayload())
       );
 
-      await expect(createGithubClient().getLatestRelease(REPO)).resolves.toBeNull();
+      await expect(
+        createGithubClient().getLatestRelease(REPO)
+      ).resolves.toBeNull();
       expect(capturedUrls).toEqual([RELEASE_API_URL, REPO_API_URL]);
     });
 
@@ -187,7 +192,9 @@ describe("GithubClient", () => {
         makeResponse(STATUS_CODE.NOT_FOUND)
       );
 
-      await expect(createGithubClient().getLatestRelease(MISSING_REPO)).rejects.toMatchObject({
+      await expect(
+        createGithubClient().getLatestRelease(MISSING_REPO)
+      ).rejects.toMatchObject({
         code: ERROR_CODES.NOT_FOUND,
         details: { fullName: MISSING_REPO },
         message: "GitHub repository not found",
@@ -198,7 +205,9 @@ describe("GithubClient", () => {
     it("throws SERVICE_UNAVAILABLE when release payload is invalid", async () => {
       enqueue(makeResponse(STATUS_CODE.OK, { tag_name: TAG }));
 
-      await expect(createGithubClient().getLatestRelease(REPO)).rejects.toMatchObject({
+      await expect(
+        createGithubClient().getLatestRelease(REPO)
+      ).rejects.toMatchObject({
         code: ERROR_CODES.SERVICE_UNAVAILABLE,
         message: "GitHub API returned invalid data",
         name: "AppError",

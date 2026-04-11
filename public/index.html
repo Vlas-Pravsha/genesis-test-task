@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Releases</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <script src="./assets/app.js" defer></script>
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">GitHub Release Subscriptions</p>
+          <h1>Керування підписками</h1>
+          <p class="subtitle">
+            Підписка, перевірка стану API та робота з токенами.
+          </p>
+        </div>
+        <div class="api-badge" id="apiBaseLabel">
+          API: http://localhost:3000
+        </div>
+      </header>
+
+      <section class="grid grid--status">
+        <article class="card status-card" data-status-card="health">
+          <p class="label">API</p>
+          <strong class="status-card__value">Очікування</strong>
+          <p class="status-card__meta">/health</p>
+        </article>
+        <article class="card status-card" data-status-card="db">
+          <p class="label">Database</p>
+          <strong class="status-card__value">Очікування</strong>
+          <p class="status-card__meta">/health/db</p>
+        </article>
+        <article class="card card--action">
+          <p class="label">Перевірка</p>
+          <button
+            class="button button--dark"
+            id="refreshHealthButton"
+            type="button"
+          >
+            Оновити статус
+          </button>
+        </article>
+      </section>
+
+      <section class="grid">
+        <section class="card">
+          <h2>Нова підписка</h2>
+          <form id="subscribeForm" novalidate>
+            <label class="field">
+              <span>Email</span>
+              <input
+                id="subscribeEmail"
+                name="email"
+                placeholder="you@example.com"
+                type="email"
+              />
+            </label>
+            <label class="field">
+              <span>Репозиторій</span>
+              <input
+                id="subscribeRepo"
+                name="repo"
+                placeholder="owner/repo"
+                type="text"
+              />
+            </label>
+            <div class="actions">
+              <button class="button" id="subscribeButton" type="button">
+                Підписатися
+              </button>
+            </div>
+          </form>
+          <div class="feedback" hidden id="subscribeFeedback"></div>
+        </section>
+
+        <section class="card">
+          <h2>Мої підписки</h2>
+          <form id="lookupForm" novalidate>
+            <label class="field">
+              <span>Email</span>
+              <input
+                id="lookupEmail"
+                name="email"
+                placeholder="you@example.com"
+                type="email"
+              />
+            </label>
+            <div class="actions">
+              <button
+                class="button button--dark"
+                id="lookupButton"
+                type="button"
+              >
+                Завантажити
+              </button>
+            </div>
+          </form>
+          <div class="results" id="subscriptionsResult">
+            <div class="empty-state">Ще немає даних.</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="card">
+        <h2>Підтвердження / Відписка</h2>
+        <form class="token-form" id="tokenForm" novalidate>
+          <div class="toggle">
+            <label
+              ><input checked name="tokenAction" type="radio" value="confirm" />
+              Підтвердити</label
+            >
+            <label
+              ><input name="tokenAction" type="radio" value="unsubscribe" />
+              Відписати</label
+            >
+          </div>
+          <label class="field">
+            <span>Токен</span>
+            <input
+              id="tokenInput"
+              name="token"
+              placeholder="token"
+              type="text"
+            />
+          </label>
+          <div class="actions">
+            <button class="button button--dark" id="tokenButton" type="button">
+              Виконати
+            </button>
+          </div>
+        </form>
+        <div class="feedback" hidden id="tokenFeedback"></div>
+      </section>
+    </main>
+  </body>
+</html>

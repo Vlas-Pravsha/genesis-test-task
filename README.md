@@ -85,6 +85,13 @@ The test workflow also reads `POSTGRES_USER` and `POSTGRES_PASSWORD` from GitHub
 
 ## HTTP Endpoints
 
-- `GET /` - basic app status
+- `GET /` - browser UI for HTML requests, JSON app status for non-HTML clients
 - `GET /health` - liveness check
 - `GET /health/db` - database connectivity check
+- `GET /metrics` - Prometheus metrics in text exposition format
+- `POST /api/subscribe` - create a subscription and send a confirmation email
+- `GET /api/subscriptions?email=<email>` - list active subscriptions for an email
+- `GET /api/confirm/:token` - confirm a pending subscription
+- `GET /api/unsubscribe/:token` - unsubscribe via token
+
+Open `http://localhost:3000/` in a browser to use the new UI.

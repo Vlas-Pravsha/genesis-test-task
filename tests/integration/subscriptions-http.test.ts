@@ -3,9 +3,10 @@ import { jest } from "@jest/globals";
 import { mock, mockReset } from "jest-mock-extended";
 
 import { AppError } from "../../src/core/errors/app-error.ts";
-import { ERROR_CODES } from "../../src/core/errors/error-codes.ts";
+import { resetMetrics } from "../../src/core/metrics/metrics.ts";
 import type { SubscriptionResponse } from "../../src/modules/subscriptions/subscriptions.types.ts";
-import { STATUS_CODE } from "../../src/shared/utils/status-code.ts";
+import { ERROR_CODES } from "../../src/shared/constants/error-code.ts";
+import { STATUS_CODE } from "../../src/shared/constants/status-code.ts";
 
 interface SubscribePayload {
   email: string;
@@ -25,15 +26,19 @@ interface SubscriptionsServiceContract {
 
 const ROUTES = {
   CONFIRM: "/api/confirm",
+  ROOT: "/",
   SUBSCRIBE: "/api/subscribe",
   SUBSCRIPTIONS: "/api/subscriptions",
   UNSUBSCRIBE: "/api/unsubscribe",
+  METRICS: "/metrics",
 } as const;
 
 const HEADERS = {
   CONTENT_TYPE: "content-type",
+  HTML: "text/html",
   JSON: "application/json",
   REQUEST_ID: "x-request-id",
+  TEXT: "text/plain",
 } as const;
 
 const FIXTURES = {
@@ -79,6 +84,51 @@ describe("Subscriptions HTTP integration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockReset(subscriptionsServiceMock);
+    resetMetrics();
+  });
+
+  it("returns the browser UI for HTML requests to the root route", async () => {
+    const app = createApp();
+
+    const response = await app.request(ROUTES.ROOT, {
+      headers: {
+        accept: HEADERS.HTML,
+      },
+    });
+
+    expect(response.status).toBe(STATUS_CODE.OK);
+    expect(response.headers.get(HEADERS.CONTENT_TYPE)).toContain(HEADERS.HTML);
+    await expect(response.text()).resolves.toContain("GitHub Releases");
+  });
+
+  it("adds CORS headers for health requests", async () => {
+    const app = createApp();
+
+    const response = await app.request("/health", {
+      headers: {
+        origin: "null",
+      },
+    });
+
+    expect(response.status).toBe(STATUS_CODE.OK);
+    expect(response.headers.get("access-control-allow-origin")).toBe("*");
+  });
+
+  it("exposes Prometheus metrics and skips self-instrumentation for /metrics", async () => {
+    const app = createApp();
+
+    await app.request("/health");
+
+    const response = await app.request(ROUTES.METRICS);
+    const body = await response.text();
+
+    expect(response.status).toBe(STATUS_CODE.OK);
+    expect(response.headers.get(HEADERS.CONTENT_TYPE)).toContain(HEADERS.TEXT);
+    expect(body).toContain("# HELP app_process_cpu_user_seconds_total");
+    expect(body).toContain(
+      'http_requests_total{method="GET",route="/health",status_code="200"} 1'
+    );
+    expect(body).not.toContain('route="/metrics"');
   });
 
   it("subscribes with a valid JSON payload", async () => {
@@ -218,5 +268,31 @@ describe("Subscriptions HTTP integration", () => {
     expect(
       subscriptionsServiceMock.getSubscriptionsByEmail
     ).toHaveBeenCalledWith(FIXTURES.EMAIL);
+  });
+
+  it("records 5xx responses in Prometheus metrics", async () => {
+    const app = createApp();
+
+    subscriptionsServiceMock.subscribe.mockRejectedValue(new Error("boom"));
+
+    const response = await app.request(
+      ROUTES.SUBSCRIBE,
+      createJsonRequest({
+        email: FIXTURES.EMAIL,
+        repo: FIXTURES.REPO,
+      })
+    );
+
+    expect(response.status).toBe(STATUS_CODE.INTERNAL_SERVER_ERROR);
+
+    const metricsResponse = await app.request(ROUTES.METRICS);
+    const body = await metricsResponse.text();
+
+    expect(body).toContain(
+      'http_requests_total{method="POST",route="/api/subscribe",status_code="500"} 1'
+    );
+    expect(body).toContain(
+      'http_errors_total{method="POST",route="/api/subscribe",status_code="500"} 1'
+    );
   });
 });

@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 
-import { STATUS_CODE } from "../../shared/utils/status-code.ts";
+import { STATUS_CODE } from "../../shared/constants/status-code.ts";
 import { getDatabaseHealthStatus, getHealthStatus } from "./health.service.ts";
 
 export const getHealth = (context: Context) =>

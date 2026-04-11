@@ -1,9 +1,11 @@
 import type { Context } from "hono";
 
+import { REQUEST_ID_HEADER } from "../../shared/constants/http.ts";
 import { AppError } from "../errors/app-error.ts";
 import { logger } from "../logger/logger.ts";
 
-const getRequestId = (context: Context) => context.req.header("x-request-id");
+const getRequestId = (context: Context) =>
+  context.req.header(REQUEST_ID_HEADER);
 
 export const notFoundMiddleware = (context: Context) => {
   const requestId = getRequestId(context);

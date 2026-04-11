@@ -2,7 +2,12 @@ import type { Context } from "hono";
 import type { z } from "zod";
 
 import { AppError } from "../../core/errors/app-error.ts";
-import { STATUS_CODE } from "../../shared/utils/status-code.ts";
+import {
+  CONTENT_TYPE_HEADER,
+  JSON_CONTENT_TYPE,
+} from "../../shared/constants/http.ts";
+import { STATUS_CODE } from "../../shared/constants/status-code.ts";
+import { hasMediaType } from "../../shared/utils/http.ts";
 import {
   emailQuerySchema,
   subscribeSchema,
@@ -31,9 +36,9 @@ const parseWithSchema = <TSchema extends z.ZodType>(
 };
 
 const readSubscribePayload = async (context: Context) => {
-  const contentType = context.req.header("content-type") ?? "";
+  const contentType = context.req.header(CONTENT_TYPE_HEADER) ?? "";
 
-  if (contentType.includes("application/json")) {
+  if (hasMediaType(contentType, JSON_CONTENT_TYPE)) {
     try {
       return await context.req.json();
     } catch (error) {

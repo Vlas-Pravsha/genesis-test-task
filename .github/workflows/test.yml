@@ -13,8 +13,8 @@ jobs:
     timeout-minutes: 10
     env:
       CRON_ENABLED: "false"
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NODE_ENV: test
+      DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@127.0.0.1:5432/genesis_test_task?schema=public
       RESEND_API_KEY: test-api-key
     services:
       postgres:

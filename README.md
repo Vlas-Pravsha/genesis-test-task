@@ -42,14 +42,15 @@ pnpm install
 
 2. Copy `.env.example` to `.env`.
 
-3. Update `DATABASE_URL` in `.env` for local development:
+3. Review `.env` for local development:
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/genesis_test_task?schema=public
 ```
 
-Use `localhost` when you run the app with `pnpm dev`. The `db` hostname from
-`.env.example` is for the Dockerized app container.
+`.env.example` already uses `localhost` so Prisma commands and `pnpm dev` work
+from your host machine. The Dockerized `app` container overrides this value and
+connects to PostgreSQL through the internal `db` hostname.
 
 4. Start PostgreSQL:
 
@@ -59,6 +60,15 @@ pnpm db:up
 
 The local Docker database uses the credentials from `.env.example`:
 `postgres / postgres`.
+
+If you change `POSTGRES_DB`, `POSTGRES_USER`, or `POSTGRES_PASSWORD` after the
+database volume has already been initialized, recreate the volume before
+expecting those new values to apply:
+
+```bash
+docker compose down -v
+pnpm db:up
+```
 
 To enable GitHub API response caching, set `UPSTASH_REDIS_REST_URL` and
 `UPSTASH_REDIS_REST_TOKEN` in `.env`. Repository and latest-release responses
@@ -127,8 +137,12 @@ GitHub Actions uses separate workflows for each check:
 - `.github/workflows/build.yml` - runs `pnpm build`
 - `.github/workflows/test.yml` - runs `pnpm test` against a fresh PostgreSQL service
 
-Each workflow reads `DATABASE_URL` from the GitHub Actions secret `DATABASE_URL`.
-The test workflow also reads `POSTGRES_USER` and `POSTGRES_PASSWORD` from GitHub Actions secrets.
+The `lint`, `typecheck`, and `build` workflows read `DATABASE_URL` from the
+GitHub Actions secret `DATABASE_URL`.
+
+The `test` workflow builds its database URL from the GitHub Actions secrets
+`POSTGRES_USER` and `POSTGRES_PASSWORD` and connects to the PostgreSQL service
+through `127.0.0.1:5432`.
 
 ## HTTP Endpoints
 

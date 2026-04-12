@@ -48,19 +48,11 @@ pnpm install
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/genesis_test_task?schema=public
 ```
 
-`.env.example` already uses `localhost` so Prisma commands and `pnpm dev` work
-from your host machine. The Dockerized `app` container overrides this value and
-connects to PostgreSQL through the internal `db` hostname.
-
 4. Start PostgreSQL:
 
 ```bash
 pnpm db:up
 ```
-
-The local Docker database uses the credentials from `.env.example`:
-`postgres / postgres`.
-
 If you change `POSTGRES_DB`, `POSTGRES_USER`, or `POSTGRES_PASSWORD` after the
 database volume has already been initialized, recreate the volume before
 expecting those new values to apply:
@@ -94,16 +86,14 @@ pnpm dev
 `APP_URL` is optional for local development. If it is not set, the app uses
 `http://localhost:<PORT>`.
 
-`pnpm prisma:generate` is not required for a normal first run because the
-generated Prisma client is already committed to the repository. Run it if the
-generated client is missing or after Prisma schema changes.
-
 ## Production
 
 Production is deployed on Railway:
 
 - App URL: `https://genesis-test-task-production.up.railway.app/`
 - Database: Railway PostgreSQL
+
+Production is deployed on Railway. The application uses Railway PostgreSQL and applies committed Prisma migrations during startup.
 
 ## Scripts
 

@@ -2,14 +2,13 @@ import "dotenv/config";
 import { z } from "zod";
 
 import {
-  DEFAULT_APP_URL,
   DEFAULT_CRON_SCHEDULE,
   DEFAULT_PORT,
   DEFAULT_RESEND_FROM_EMAIL,
 } from "../shared/constants/app.ts";
 
 const envSchema = z.object({
-  APP_URL: z.url().default(DEFAULT_APP_URL),
+  APP_URL: z.url().optional(),
   CRON_ENABLED: z
     .enum(["true", "false"])
     .default("true")
@@ -38,4 +37,7 @@ if (!parsedEnv.success) {
   );
 }
 
-export const env = parsedEnv.data;
+export const env = {
+  ...parsedEnv.data,
+  APP_URL: parsedEnv.data.APP_URL ?? `http://localhost:${parsedEnv.data.PORT}`,
+};

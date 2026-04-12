@@ -10,7 +10,7 @@ registerScannerScheduler();
 serve(
   {
     fetch: app.fetch,
-    port: env.PORT,
+    port: env.PORT || 3000,
   },
   (info) => {
     logger.info(

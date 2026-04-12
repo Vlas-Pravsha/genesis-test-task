@@ -1,5 +1,4 @@
 import { env } from "../../config/env.ts";
-import { DEFAULT_APP_URL } from "../../shared/constants/app.ts";
 
 interface EmailTemplate {
   html: string;
@@ -12,7 +11,7 @@ interface ReleaseNotificationTemplateInput {
   unsubscribeToken: string;
 }
 
-const appUrl = env.APP_URL ?? DEFAULT_APP_URL;
+const appUrl = env.APP_URL;
 
 const buildConfirmUrl = (confirmToken: string) =>
   `${appUrl}/api/confirm/${encodeURIComponent(confirmToken)}`;

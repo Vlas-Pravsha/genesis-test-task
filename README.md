@@ -1,6 +1,8 @@
 # Genesis Test Task Starter
 
-Minimal starter on:
+Backend starter for tracking GitHub releases and managing email subscriptions.
+
+Built with:
 
 - Hono
 - TypeScript
@@ -15,6 +17,7 @@ Minimal starter on:
 ## Versions
 
 - Node.js 24.14.1+
+- pnpm 10.30.3+
 - Hono 4.12.12
 - TypeScript 6.0.2
 - Prisma / @prisma/client 7.6.0
@@ -23,10 +26,29 @@ Minimal starter on:
 - Jest 30.3.0
 - zod 4.3.6
 
-## Quick Start
+## Requirements
 
-1. Copy `.env.example` to `.env`.
-2. Start PostgreSQL:
+- Node.js 24.14.1+
+- pnpm 10.30.3+ via Corepack
+- Docker / Docker Compose
+
+## Local Development
+
+1. Enable `pnpm` via Corepack if it is not enabled yet:
+
+```bash
+corepack enable
+```
+
+2. Install dependencies:
+
+```bash
+pnpm install
+```
+
+3. Copy `.env.example` to `.env`.
+
+4. Start PostgreSQL:
 
 ```bash
 docker compose up -d db
@@ -39,37 +61,85 @@ If you want GitHub API responses to be cached, set `UPSTASH_REDIS_REST_URL`
 and `UPSTASH_REDIS_REST_TOKEN` in `.env`. Repository and latest-release
 responses are cached for 10 minutes.
 
-3. Apply the existing migrations for local development:
+If you want email delivery to work outside of tests, set a real
+`RESEND_API_KEY` and `RESEND_FROM_EMAIL` in `.env`.
+
+5. Apply the committed migrations:
 
 ```bash
-npm run prisma:migrate:deploy
+pnpm prisma:migrate:deploy
 ```
 
-4. Start the app in watch mode:
+6. Start the app in watch mode:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
-`npm run start` automatically generates the Prisma client and applies committed migrations before the server starts. This is the path used when the service is started normally, including Docker.
+7. Open `http://localhost:3000/` in a browser.
+
+`APP_URL` is optional for local development. If it is not set, the app uses
+`http://localhost:<PORT>`.
+
+## Production
+
+There is no public hosted production URL in this repository. In this project,
+the production runtime is `pnpm start`, and Docker uses the same command.
+
+`pnpm start` automatically:
+
+- generates the Prisma client
+- applies committed migrations
+- starts the server once, without watch mode
+
+Run the app locally in production mode:
+
+```bash
+NODE_ENV=production pnpm start
+```
+
+Run the full stack with Docker:
+
+```bash
+docker compose up --build
+```
+
+Docker Compose reads variables from `.env`, so set production values there before
+using it for a production-like run.
+
+For a real production deployment, set at minimum:
+
+- `NODE_ENV=production`
+- `APP_URL` to the public base URL
+- `DATABASE_URL` to the production PostgreSQL instance
+- `RESEND_API_KEY` and `RESEND_FROM_EMAIL`
+- optionally `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+
+Note: `pnpm build` compiles the application into `dist`, but the current
+`start` script and `Dockerfile` run `tsx src/server.ts` directly.
 
 ## Scripts
 
-- `npm run dev` - run the Hono server in watch mode
-- `npm run start` - generate Prisma client, apply migrations, and run the server once
-- `npm run build` - compile the application into `dist`
-- `npm run lint` - run Oxlint
-- `npm run lint:fix` - run Oxlint with safe autofixes
-- `npm run fmt` - format files with Oxfmt
-- `npm run fmt:check` - check formatting with Oxfmt
-- `npm run typecheck` - TypeScript validation
-- `npm run test` - run tests
-- `npm run prisma:generate` - generate Prisma client
-- `npm run prisma:migrate:deploy` - apply committed migrations to the current database
-- `npm run prisma:migrate -- --name <migration-name>` - create and apply a development migration
-- `npm run prisma:studio` - open Prisma Studio
-- `npm run db:up` - start only PostgreSQL
-- `npm run docker:up` - start app + PostgreSQL via Docker
+- `pnpm dev` - run the Hono server in watch mode
+- `pnpm start` - generate Prisma client, apply migrations, and run the server once
+- `pnpm build` - compile the application into `dist`
+- `pnpm lint` - run Oxlint
+- `pnpm lint:fix` - run Oxlint with safe autofixes
+- `pnpm lint:staged` - run lint-staged for staged files
+- `pnpm fmt` - format files with Oxfmt
+- `pnpm fmt:check` - check formatting with Oxfmt
+- `pnpm typecheck` - TypeScript validation
+- `pnpm test` - run tests
+- `pnpm test:watch` - run tests in watch mode
+- `pnpm prisma:generate` - generate Prisma client
+- `pnpm prisma:migrate:deploy` - apply committed migrations to the current database
+- `pnpm prisma:migrate -- --name <migration-name>` - create and apply a development migration
+- `pnpm prisma:studio` - open Prisma Studio
+- `pnpm db:up` - start only PostgreSQL
+- `pnpm db:down` - stop Docker services started for the database
+- `pnpm docker:up` - start app + PostgreSQL via Docker
+- `pnpm docker:down` - stop Docker services started for the app stack
+- `pnpm swagger` - run Swagger UI watcher for `swagger/swagger.yml`
 
 ## CI
 

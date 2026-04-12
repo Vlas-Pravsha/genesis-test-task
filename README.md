@@ -16,7 +16,7 @@ Built with:
 
 ## Versions
 
-- Node.js 24.14.1+
+- Node.js 24+
 - pnpm 10.30.3+
 - Hono 4.12.12
 - TypeScript 6.0.2
@@ -28,41 +28,44 @@ Built with:
 
 ## Requirements
 
-- Node.js 24.14.1+
-- pnpm 10.30.3+ via Corepack
+- Node.js 24+
+- pnpm 10.30.3+
 - Docker / Docker Compose
 
 ## Local Development
 
-1. Enable `pnpm` via Corepack if it is not enabled yet:
-
-```bash
-corepack enable
-```
-
-2. Install dependencies:
+1. Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-3. Copy `.env.example` to `.env`.
+2. Copy `.env.example` to `.env`.
+
+3. Update `DATABASE_URL` in `.env` for local development:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/genesis_test_task?schema=public
+```
+
+Use `localhost` when you run the app with `pnpm dev`. The `db` hostname from
+`.env.example` is for the Dockerized app container.
 
 4. Start PostgreSQL:
 
 ```bash
-docker compose up -d db
+pnpm db:up
 ```
 
 The local Docker database uses the credentials from `.env.example`:
-`vlas / genesis-secret-password55`.
+`postgres / postgres`.
 
-If you want GitHub API responses to be cached, set `UPSTASH_REDIS_REST_URL`
-and `UPSTASH_REDIS_REST_TOKEN` in `.env`. Repository and latest-release
-responses are cached for 10 minutes.
+To enable GitHub API response caching, set `UPSTASH_REDIS_REST_URL` and
+`UPSTASH_REDIS_REST_TOKEN` in `.env`. Repository and latest-release responses
+are cached for 10 minutes.
 
-If you want email delivery to work outside of tests, set a real
-`RESEND_API_KEY` and `RESEND_FROM_EMAIL` in `.env`.
+To enable email delivery, set a valid `RESEND_API_KEY` and `RESEND_FROM_EMAIL`
+in `.env`.
 
 5. Apply the committed migrations:
 
@@ -81,42 +84,16 @@ pnpm dev
 `APP_URL` is optional for local development. If it is not set, the app uses
 `http://localhost:<PORT>`.
 
+`pnpm prisma:generate` is not required for a normal first run because the
+generated Prisma client is already committed to the repository. Run it if the
+generated client is missing or after Prisma schema changes.
+
 ## Production
 
-There is no public hosted production URL in this repository. In this project,
-the production runtime is `pnpm start`, and Docker uses the same command.
+Production is deployed on Railway:
 
-`pnpm start` automatically:
-
-- generates the Prisma client
-- applies committed migrations
-- starts the server once, without watch mode
-
-Run the app locally in production mode:
-
-```bash
-NODE_ENV=production pnpm start
-```
-
-Run the full stack with Docker:
-
-```bash
-docker compose up --build
-```
-
-Docker Compose reads variables from `.env`, so set production values there before
-using it for a production-like run.
-
-For a real production deployment, set at minimum:
-
-- `NODE_ENV=production`
-- `APP_URL` to the public base URL
-- `DATABASE_URL` to the production PostgreSQL instance
-- `RESEND_API_KEY` and `RESEND_FROM_EMAIL`
-- optionally `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
-
-Note: `pnpm build` compiles the application into `dist`, but the current
-`start` script and `Dockerfile` run `tsx src/server.ts` directly.
+- App URL: `https://genesis-test-task-production.up.railway.app/`
+- Database: Railway PostgreSQL
 
 ## Scripts
 

@@ -11,8 +11,8 @@ import { ERROR_CODES } from "../../src/shared/constants/error-code.ts";
 import { STATUS_CODE } from "../../src/shared/constants/status-code.ts";
 
 const EMAIL = faker.internet.email().toLowerCase();
-const REPO = "octocat/hello-world";
-const REPO_2 = "nodejs/node";
+const REPO = "golang/go";
+const REPO_2 = "golang/tools";
 const CURRENT_TAG = "v1.0.0";
 const NEW_TAG = "v1.2.3";
 const CONFIRM_TOKEN = "confirm-token";

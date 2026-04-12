@@ -9,9 +9,9 @@ import { ScannerService } from "../../src/modules/scanner/scanner.service.ts";
 
 const EMAIL = faker.internet.email().toLowerCase();
 const SECONDARY_EMAIL = faker.internet.email().toLowerCase();
-const REPO = "octocat/hello-world";
-const BROKEN_REPO = "octocat/broken";
-const HEALTHY_REPO = "octocat/healthy";
+const REPO = "golang/go";
+const BROKEN_REPO = "golang/mobile";
+const HEALTHY_REPO = "golang/tools";
 const CURRENT_TAG = "v1.0.0";
 const NEW_TAG = "v1.1.0";
 const HEALTHY_TAG = "v2.0.0";

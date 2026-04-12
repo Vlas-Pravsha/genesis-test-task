@@ -44,7 +44,7 @@ const HEADERS = {
 const FIXTURES = {
   EMAIL: faker.internet.email().toLowerCase(),
   INVALID_EMAIL: faker.string.alpha(12),
-  REPO: "octocat/hello-world",
+  REPO: "golang/go",
   REQUEST_ID: "request-123",
   TOKEN: "token-123",
 } as const;

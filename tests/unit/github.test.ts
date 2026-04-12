@@ -8,8 +8,8 @@ import { ERROR_CODES } from "../../src/shared/constants/error-code.ts";
 import { STATUS_CODE } from "../../src/shared/constants/status-code.ts";
 
 const TOKEN = "secret-token";
-const REPO = "octocat/hello-world";
-const MISSING_REPO = "octocat/missing";
+const REPO = "golang/go";
+const MISSING_REPO = "golang/missing";
 const REPO_API_PATH = `/repos/${REPO}`;
 const REPO_API_URL = `https://api.github.com${REPO_API_PATH}`;
 const RELEASE_API_URL = `${REPO_API_URL}/releases/latest`;
